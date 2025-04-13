@@ -68,9 +68,18 @@ def index():
 def clear():
     save_messages([])
     return redirect(url_for('index'))
+def load_todos():
+    print("load_todos is defined:", callable(load_todos))
+    if not os.path.exists(TODO_FILE):
+        return []
+    with open(TODO_FILE, 'r') as f:
+        return json.load(f)
+    
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+
+def save_todos(todos):
+    with open(TODO_FILE, 'w') as f:
+        json.dump(todos, f)
 
 @app.route('/todos', methods=['GET', 'POST'])
 def todos():
@@ -90,3 +99,8 @@ def delete_todo(index):
         todos.pop(index)
         save_todos(todos)
     return redirect(url_for('todos'))
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000,debug=True)
+
