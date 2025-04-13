@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+
+ip_name_map = {}
 
 app = Flask(__name__)
 DATA_FILE = 'data/messages.json'
@@ -9,9 +11,6 @@ TODO_FILE = 'data/todos.json'
 COMPLETED_FILE = 'data/completed.json'
 
 os.makedirs('data', exist_ok=True)
-
-ip_name_map = {}
-user_last_seen = {}
 
 def load_json(file):
     if not os.path.exists(file):
@@ -23,25 +22,14 @@ def save_json(data, file):
     with open(file, 'w') as f:
         json.dump(data, f)
 
-def get_active_users():
-    active_window = datetime.now() - timedelta(minutes=5)
-    return sorted(set(
-        name for ip, name in ip_name_map.items()
-        if user_last_seen.get(ip, datetime.min) > active_window
-    ))
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    user_ip = request.remote_addr
-    user_last_seen[user_ip] = datetime.now()
-
     if request.method == 'POST':
         name = request.form['name'].strip()
         if name:
-            ip_name_map[user_ip] = name
+            ip_name_map[request.remote_addr] = name
             return redirect(url_for('index'))
     return '''
-        <link rel="stylesheet" href="/static/style.css">
         <h1>Enter Your Name</h1>
         <form method="post">
             <input type="text" name="name" placeholder="Your name" required>
@@ -52,8 +40,6 @@ def register():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     user_ip = request.remote_addr
-    user_last_seen[user_ip] = datetime.now()
-
     if user_ip not in ip_name_map:
         return redirect(url_for('register'))
 
@@ -70,7 +56,7 @@ def index():
             save_json(messages, DATA_FILE)
         return redirect(url_for('index'))
 
-    return render_template('index.html', messages=messages, active_users=get_active_users())
+    return render_template('index.html', messages=messages)
 
 @app.route('/clear', methods=['POST'])
 def clear():
@@ -88,16 +74,22 @@ def todos():
     if request.method == 'POST':
         task = request.form['task'].strip()
         priority = request.form['priority']
+        reference = request.form.get('reference', '').strip()
+        assignee = request.form.get('assignee', user_name)
+
         if task:
             todos.append({
                 'task': task,
                 'priority': priority,
-                'owner': user_name
+                'reference': reference,
+                'assignee': assignee,
+                'owner': user_name,
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             })
             save_json(todos, TODO_FILE)
         return redirect(url_for('todos'))
 
-    return render_template('todos.html', todos=todos, completed=completed, username=user_name)
+    return render_template('todos.html', todos=todos, completed=completed, username=user_name, users=list(set(ip_name_map.values())))
 
 @app.route('/complete_todo/<int:index>', methods=['POST'])
 def complete_todo(index):
