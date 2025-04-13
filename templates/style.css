@@ -1,4 +1,4 @@
-/* Set a dark mode background */
+/* Set a dark mode background and ensure full-page layout */
 body {
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(45deg, #1a1a1a, #333);
@@ -10,6 +10,7 @@ body {
     align-items: center;
     height: 100vh;
     text-align: center;
+    flex-direction: column;
 }
 
 /* Header Styles */
@@ -19,15 +20,28 @@ h1 {
     margin-bottom: 30px;
     text-transform: uppercase;
     letter-spacing: 3px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 255, 255, 0.2);
+}
+
+/* Section Styles - Bubbled Out Effect */
+section {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 10px 15px rgba(0, 255, 255, 0.2);
 }
 
 /* Form styles for posting notes */
 form {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 255, 255, 0.2);
-    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 textarea {
@@ -40,6 +54,7 @@ textarea {
     color: #f4f4f4;
     resize: none;
     box-shadow: 0 4px 6px rgba(0, 255, 255, 0.3);
+    margin-bottom: 15px;
 }
 
 /* Post Button */
@@ -51,8 +66,8 @@ button {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 15px;
     transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
 }
 
 button:hover {
@@ -74,8 +89,9 @@ form button[type="submit"]:hover {
 /* Message board styling */
 ul {
     padding: 0;
-    max-width: 800px;
-    margin: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
 }
 
 li {
