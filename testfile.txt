@@ -1,0 +1,2 @@
+Hello, VirusTotal test!
+This file should be harmless.

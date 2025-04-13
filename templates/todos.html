@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shared To-Do List</title>
+</head>
+<body>
+    <h1>Shared To-Do List</h1>
+    <form method="POST">
+        <input name="task" placeholder="Add a new task..." required>
+        <button type="submit">Add</button>
+    </form>
+
+    <ul>
+        {% for item in todos %}
+            <li>
+                {{ item.task }}
+                <form method="POST" action="{{ url_for('delete_todo', index=loop.index0) }}" style="display:inline;">
+                    <button type="submit">❌</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('index') }}">← Back to Notes</a>
+</body>
+</html>
