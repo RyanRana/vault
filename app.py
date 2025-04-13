@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 DATA_FILE = 'data/messages.json'
+TODO_FILE = 'data/todos.json'
+
 os.makedirs('data', exist_ok=True)
 
 ip_name_map = {}
@@ -77,3 +79,22 @@ def clear():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+@app.route('/todos', methods=['GET', 'POST'])
+def todos():
+    todos = load_todos()
+    if request.method == 'POST':
+        task = request.form['task'].strip()
+        if task:
+            todos.append({'task': task})
+            save_todos(todos)
+        return redirect(url_for('todos'))
+    return render_template('todos.html', todos=todos)
+
+@app.route('/delete_todo/<int:index>', methods=['POST'])
+def delete_todo(index):
+    todos = load_todos()
+    if 0 <= index < len(todos):
+        todos.pop(index)
+        save_todos(todos)
+    return redirect(url_for('todos'))
