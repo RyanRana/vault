@@ -24,13 +24,16 @@ def index():
     if request.method == 'POST':
         note = request.form['note'].strip()
         if note:
+            user_ip = request.remote_addr
             messages.append({
                 'text': note,
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'ip': user_ip
             })
             save_messages(messages)
         return redirect(url_for('index'))
     return render_template('index.html', messages=messages)
+
 
 @app.route('/clear', methods=['POST'])
 def clear():
