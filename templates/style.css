@@ -1,20 +1,129 @@
+/* Set a dark mode background and ensure full-page layout */
 body {
-    font-family: sans-serif;
-    max-width: 600px;
-    margin: auto;
-    padding-top: 20px;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(45deg, #1a1a1a, #333);
+    color: #f4f4f4;
+    margin: 0;
+    padding: 100px 20px 20px; /* added top padding to avoid overlap */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    text-align: center;
+    flex-direction: column;
 }
+
+
+/* Header Styles */
+h1 {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    color: #00f7ff;
+    margin: 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 255, 255, 0.2);
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+
+/* Section Styles - Bubbled Out Effect */
+section {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 10px 15px rgba(0, 255, 255, 0.2);
+}
+
+/* Form styles for posting notes */
+form {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 textarea {
     width: 100%;
-    font-size: 16px;
+    font-size: 1rem;
+    padding: 12px;
+    border: 2px solid rgb(206, 157, 104);
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: #f4f4f4;
+    resize: none;
+    box-shadow: 0 4px 6px rgba(0, 255, 255, 0.3);
+    margin-bottom: 15px;
 }
+
+/* Post Button */
+button {
+    background-color: #00f7ff;
+    color: #1a1a1a;
+    font-size: 1.2rem;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #9b6540;
+    transform: scale(1.05);
+}
+
+/* Clear button styling */
+form button[type="submit"] {
+    background-color: #9b6540;
+    margin-top: 10px;
+}
+
+form button[type="submit"]:hover {
+    background-color: #00f7ff;
+    transform: scale(1.05);
+}
+
+/* Message board styling */
 ul {
-    list-style-type: none;
     padding: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
 }
+
 li {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
     margin-bottom: 10px;
-    padding: 8px;
-    background-color: #f4f4f4;
-    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+    transition: background-color 0.3s;
 }
+
+li:hover {
+    background-color: rgba(0, 255, 255, 0.3);
+}
+
+strong {
+    color: #9b6540;
+}
+
+li:hover {
+    background-color: rgba(0, 255, 255, 0.3);
+}
+
+strong {
+    color: #ff0066;
+}
+

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # 1) Import the scanning function from virus.py
 from virus import scan_file
@@ -18,8 +18,8 @@ os.makedirs('data', exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 ip_name_map = {}
+user_last_seen = {}
 
-# ----- Utility Functions -----
 def load_messages():
     if not os.path.exists(DATA_FILE):
         return []
@@ -40,15 +40,25 @@ def save_todos(todos):
     with open(TODO_FILE, 'w') as f:
         json.dump(todos, f)
 
-# ----- Routes -----
+def get_active_users():
+    active_window = datetime.now() - timedelta(minutes=5)
+    return sorted(set(
+        name for ip, name in ip_name_map.items()
+        if user_last_seen.get(ip, datetime.min) > active_window
+    ))
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    user_ip = request.remote_addr
+    user_last_seen[user_ip] = datetime.now()
+
     if request.method == 'POST':
         name = request.form['name'].strip()
         if name:
-            ip_name_map[request.remote_addr] = name
+            ip_name_map[user_ip] = name
             return redirect(url_for('index'))
     return '''
+        <link rel="stylesheet" href="/static/style.css">
         <h1>Enter Your Name</h1>
         <form method="post">
             <input type="text" name="name" placeholder="Your name" required>
@@ -59,8 +69,8 @@ def register():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     user_ip = request.remote_addr
+    user_last_seen[user_ip] = datetime.now()
 
-    # First-time visitor? Ask for name.
     if user_ip not in ip_name_map:
         return redirect(url_for('register'))
 
@@ -85,12 +95,12 @@ def index():
                 print("DEBUG: VirusTotal scan complete, result:", is_clean)
             except Exception as e:
                 flash("VirusTotal scanning did not run due to an error: " + str(e))
-                os.remove(file_path)  # Remove the file since we can't verify it.
+                os.remove(file_path)  # remove the file since we can't verify it
                 return redirect(url_for('index'))
 
             if not is_clean:
                 flash("Malicious or suspicious file detected! Message NOT saved.")
-                os.remove(file_path)  # Optionally remove the uploaded file.
+                os.remove(file_path)  # optionally remove the uploaded file
                 return redirect(url_for('index'))
             else:
                 flash("File scanned: it appears clean.")
@@ -107,7 +117,7 @@ def index():
 
         return redirect(url_for('index'))
 
-    return render_template('index.html', messages=messages)
+    return render_template('index.html', messages=messages, active_users=get_active_users())
 
 @app.route('/clear', methods=['POST'])
 def clear():
@@ -134,4 +144,4 @@ def delete_todo(index):
     return redirect(url_for('todos'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)
