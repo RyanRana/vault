@@ -5,22 +5,22 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>LANBoard – Leave a Note</h1>
-    <!-- Display flash messages, if any -->
+    <!-- Display flash messages -->
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul style="color:red;">
-          {% for msg in messages %}
-            <li>{{ msg }}</li>
+        <ul class="flashes" style="color: red;">
+          {% for message in messages %}
+            <li>{{ message }}</li>
           {% endfor %}
         </ul>
       {% endif %}
     {% endwith %}
 
+    <h1>LANBoard – Leave a Note</h1>
+
     <form method="POST" action="/" enctype="multipart/form-data">
         <textarea name="note" rows="4" cols="50" placeholder="Leave a message..." required></textarea><br>
-        <!-- Add a file input -->
-        <input type="file" name="file" /><br><br>
+        <input type="file" name="file" style="margin-top:10px;"><br><br>
         <button type="submit">Post</button>
     </form>
 
@@ -34,5 +34,7 @@
         <li><strong>{{ msg.timestamp }} ({{ msg.name }}):</strong> {{ msg.text }}</li>
         {% endfor %}
     </ul>
+
+    <a href="{{ url_for('todos') }}">📝 Go to Shared To-Do List</a>
 </body>
 </html>
