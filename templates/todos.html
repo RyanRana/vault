@@ -5,6 +5,8 @@
 </head>
 <body>
     <h1>Shared To-Do List</h1>
+
+    <!-- Add new task -->
     <form method="POST">
         <input name="task" placeholder="Add a new task..." required>
         <select name="priority">
@@ -15,13 +17,33 @@
         <button type="submit">Add</button>
     </form>
 
+    <!-- To-Do List -->
+    <h2>Pending Tasks</h2>
     <ul>
         {% for item in todos %}
             <li>
-                {{ item.task }}
-                <form method="POST" action="{{ url_for('delete_todo', index=loop.index0) }}" style="display:inline;">
-                    <button type="submit">❌</button>
+                <strong>[{{ item.priority }}]</strong> {{ item.task }} 
+                <em>(Added by {{ item.owner }})</em>
+                <form method="POST" action="{{ url_for('complete_todo', index=loop.index0) }}" style="display:inline;">
+                    <button type="submit">✅ Done</button>
                 </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Completed Tasks -->
+    <h2>Completed Tasks</h2>
+    <ul>
+        {% for item in completed %}
+            <li>
+                <strong>[{{ item.priority }}]</strong> {{ item.task }} 
+                <em>(Added by {{ item.owner }}, completed by {{ item.completed_by }})</em>
+
+                {% if item.owner == username %}
+                <form method="POST" action="{{ url_for('acknowledge', index=loop.index0) }}" style="display:inline;">
+                    <button type="submit">✔ Acknowledge</button>
+                </form>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
