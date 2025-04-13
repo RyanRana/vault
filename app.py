@@ -86,8 +86,12 @@ def todos():
     todos = load_todos()
     if request.method == 'POST':
         task = request.form['task'].strip()
+        priority = request.form['priority']
         if task:
-            todos.append({'task': task})
+            todos.append({
+                'task': task,
+                'priority': priority
+            })
             save_todos(todos)
         return redirect(url_for('todos'))
     return render_template('todos.html', todos=todos)
