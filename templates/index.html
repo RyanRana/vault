@@ -20,5 +20,7 @@
         <li><strong>{{ msg.timestamp }} ({{ msg.name }}):</strong> {{ msg.text }}</li>
         {% endfor %}
     </ul>
+    <a href="{{ url_for('todos') }}">📝 Go to Shared To-Do List</a>
+
 </body>
 </html>
