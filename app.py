@@ -8,19 +8,19 @@ ip_name_map = {}
 app = Flask(__name__)
 DATA_FILE = 'data/messages.json'
 TODO_FILE = 'data/todos.json'
+COMPLETED_FILE = 'data/completed.json'
 
 os.makedirs('data', exist_ok=True)
 
-# Load or initialize message list
-def load_messages():
-    if not os.path.exists(DATA_FILE):
+def load_json(file):
+    if not os.path.exists(file):
         return []
-    with open(DATA_FILE, 'r') as f:
+    with open(file, 'r') as f:
         return json.load(f)
 
-def save_messages(messages):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(messages, f)
+def save_json(data, file):
+    with open(file, 'w') as f:
+        json.dump(data, f)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -37,17 +37,13 @@ def register():
         </form>
     '''
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     user_ip = request.remote_addr
-
-    # First-time visitor? Ask for name
     if user_ip not in ip_name_map:
         return redirect(url_for('register'))
 
-    messages = load_messages()
-
+    messages = load_json(DATA_FILE)
     if request.method == 'POST':
         note = request.form['note'].strip()
         if note:
@@ -57,54 +53,63 @@ def index():
                 'ip': user_ip,
                 'name': ip_name_map[user_ip]
             })
-            save_messages(messages)
+            save_json(messages, DATA_FILE)
         return redirect(url_for('index'))
 
     return render_template('index.html', messages=messages)
 
-
-
 @app.route('/clear', methods=['POST'])
 def clear():
-    save_messages([])
+    save_json([], DATA_FILE)
     return redirect(url_for('index'))
-def load_todos():
-    print("load_todos is defined:", callable(load_todos))
-    if not os.path.exists(TODO_FILE):
-        return []
-    with open(TODO_FILE, 'r') as f:
-        return json.load(f)
-    
-
-
-def save_todos(todos):
-    with open(TODO_FILE, 'w') as f:
-        json.dump(todos, f)
 
 @app.route('/todos', methods=['GET', 'POST'])
 def todos():
-    todos = load_todos()
+    user_ip = request.remote_addr
+    user_name = ip_name_map.get(user_ip, 'Anonymous')
+
+    todos = load_json(TODO_FILE)
+    completed = load_json(COMPLETED_FILE)
+
     if request.method == 'POST':
         task = request.form['task'].strip()
         priority = request.form['priority']
         if task:
             todos.append({
                 'task': task,
-                'priority': priority
+                'priority': priority,
+                'owner': user_name
             })
-            save_todos(todos)
+            save_json(todos, TODO_FILE)
         return redirect(url_for('todos'))
-    return render_template('todos.html', todos=todos)
 
-@app.route('/delete_todo/<int:index>', methods=['POST'])
-def delete_todo(index):
-    todos = load_todos()
+    return render_template('todos.html', todos=todos, completed=completed, username=user_name)
+
+@app.route('/complete_todo/<int:index>', methods=['POST'])
+def complete_todo(index):
+    todos = load_json(TODO_FILE)
+    completed = load_json(COMPLETED_FILE)
+
     if 0 <= index < len(todos):
-        todos.pop(index)
-        save_todos(todos)
+        completed_task = todos.pop(index)
+        completed_task['completed_by'] = ip_name_map.get(request.remote_addr, 'Someone')
+        completed.append(completed_task)
+        save_json(todos, TODO_FILE)
+        save_json(completed, COMPLETED_FILE)
+
     return redirect(url_for('todos'))
 
+@app.route('/acknowledge/<int:index>', methods=['POST'])
+def acknowledge(index):
+    completed = load_json(COMPLETED_FILE)
+
+    if 0 <= index < len(completed):
+        user_name = ip_name_map.get(request.remote_addr)
+        if completed[index]['owner'] == user_name:
+            completed.pop(index)
+            save_json(completed, COMPLETED_FILE)
+
+    return redirect(url_for('todos'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000,debug=True)
-
+    app.run(host='0.0.0.0', port=5000, debug=True)
