@@ -7,6 +7,11 @@
     <h1>Shared To-Do List</h1>
     <form method="POST">
         <input name="task" placeholder="Add a new task..." required>
+        <select name="priority">
+            <option value="Low">🟢 Low</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="High">🔴 High</option>
+        </select>
         <button type="submit">Add</button>
     </form>
 

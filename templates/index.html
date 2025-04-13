@@ -16,8 +16,13 @@
 
     <h2>Message Board</h2>
     <ul>
-        {% for msg in messages|reverse %}
-        <li><strong>{{ msg.timestamp }} ({{ msg.name }}):</strong> {{ msg.text }}</li>
+        {% for item in todos %}
+            <li>
+                <strong>[{{ item.priority }}]</strong> {{ item.task }}
+                <form method="POST" action="{{ url_for('delete_todo', index=loop.index0) }}" style="display:inline;">
+                    <button type="submit">❌</button>
+                </form>
+            </li>
         {% endfor %}
     </ul>
     <a href="{{ url_for('todos') }}">📝 Go to Shared To-Do List</a>
