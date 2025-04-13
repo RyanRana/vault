@@ -1,13 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import json
 import os
 from datetime import datetime
 
-ip_name_map = {}
+# 1) Import your virus scanning function
+from virus import scan_file  # <--- Make sure the file is named virus.py
 
 app = Flask(__name__)
+app.secret_key = "some_secret_key_for_flask_sessions"
+
 DATA_FILE = 'data/messages.json'
+UPLOAD_FOLDER = 'uploads'
 os.makedirs('data', exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+ip_name_map = {}
 
 # Load or initialize message list
 def load_messages():
@@ -35,7 +42,6 @@ def register():
         </form>
     '''
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     user_ip = request.remote_addr
@@ -47,7 +53,27 @@ def index():
     messages = load_messages()
 
     if request.method == 'POST':
-        note = request.form['note'].strip()
+        note = request.form['note'].strip() if 'note' in request.form else ''
+        
+        # 2) Check if a file was uploaded
+        uploaded_file = request.files.get('file')
+        if uploaded_file and uploaded_file.filename:
+            # Save file temporarily
+            file_path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
+            uploaded_file.save(file_path)
+
+            # 3) Scan with VirusTotal
+            is_clean = scan_file(file_path)
+            if not is_clean:
+                # Malicious => show user an error, do NOT save the message
+                flash("Malicious or suspicious file detected! Message NOT saved.")
+                os.remove(file_path)  # optionally delete the file
+                return redirect(url_for('index'))
+            else:
+                flash("File scanned: it appears clean.")
+                # you can keep or remove the file, depending on your needs
+
+        # 4) If we got here, either no file or it's clean => save the note
         if note:
             messages.append({
                 'text': note,
@@ -56,11 +82,10 @@ def index():
                 'name': ip_name_map[user_ip]
             })
             save_messages(messages)
+
         return redirect(url_for('index'))
 
     return render_template('index.html', messages=messages)
-
-
 
 @app.route('/clear', methods=['POST'])
 def clear():
@@ -68,4 +93,4 @@ def clear():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
