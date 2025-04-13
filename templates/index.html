@@ -17,7 +17,7 @@
     <h2>Message Board</h2>
     <ul>
         {% for msg in messages|reverse %}
-        <li><strong>{{ msg.timestamp }} ({{ msg.ip }}):</strong> {{ msg.text }}</li>
+        <li><strong>{{ msg.timestamp }} ({{ msg.name }}):</strong> {{ msg.text }}</li>
         {% endfor %}
     </ul>
 </body>
