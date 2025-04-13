@@ -5,27 +5,42 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>LANBoard – Leave a Note</h1>
+    <h1>Pi-Send</h1>
+
+    <!-- Post Message Form -->
     <form method="POST" action="/">
         <textarea name="note" rows="4" cols="50" placeholder="Leave a message..." required></textarea><br>
         <button type="submit">Post</button>
     </form>
+
+    <!-- Clear + Change Name -->
     <form method="POST" action="/clear">
         <button type="submit" style="margin-top:10px;">Clear All Messages</button>
     </form>
 
+    <form method="GET" action="/register">
+        <button type="submit">Change Name</button>
+    </form>
+
+    <!-- Message Board -->
     <h2>Message Board</h2>
     <ul>
-        {% for item in todos %}
-            <li>
-                <strong>[{{ item.priority }}]</strong> {{ item.task }}
-                <form method="POST" action="{{ url_for('delete_todo', index=loop.index0) }}" style="display:inline;">
-                    <button type="submit">❌</button>
-                </form>
-            </li>
+        {% for msg in messages|reverse %}
+            <li><strong>{{ msg.timestamp }} ({{ msg.name }}):</strong> {{ msg.text }}</li>
         {% endfor %}
     </ul>
-    <a href="{{ url_for('todos') }}">📝 Go to Shared To-Do List</a>
 
+    <!-- Active Users -->
+    <h2>Currently Active Users (last 5 min):</h2>
+    <ul>
+        {% for user in active_users %}
+            <li>{{ user }}</li>
+        {% else %}
+            <li>No active users</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Link to To-Do -->
+    <a href="{{ url_for('todos') }}">📝 Go to Shared To-Do List</a>
 </body>
 </html>
