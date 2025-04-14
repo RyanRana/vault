@@ -2,6 +2,8 @@
 
 Vault is a full-stack application designed to provide teams with a secure digital platform. The system offers a secure message board and file-sharing platform, allowing users to interact with messages, securely upload/download files, and manage tasks. It leverages VirusTotal for malware detection, HMAC hash authentication for user verification, and uses JSON for file storage. The entire platform is built with HTML for the user interface and operates on an offline server, ensuring security and privacy.
 
+Was awarded first at RutgersXFiserv Hackathon
+
 ## System Workflow
 
 ### Admin Management
